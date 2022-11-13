@@ -28,8 +28,8 @@
         <td>{{ p.dni }}</td>
         <td>{{ p.motivo }}</td>
         <td>
-          <a href="{{ url_for('index', borrar=p.id) }}"><span class="badge bg-danger">Eliminar</span></a>
-          <a href="{{ url_for('editar_persona', id=p.id) }}"><span class="badge bg-secondary">Editar</span></a>
+          <a href="{{ url_for('index', eliminar=p.id) }}"><span class="badge bg-danger">Eliminar</span></a>
+          <a href="{{ url_for('get_editar_persona', id=p.id) }}"><span class="badge bg-secondary">Editar</span></a>
         </td>
       </tr>
       {% endfor %}

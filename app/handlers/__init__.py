@@ -2,55 +2,55 @@ import json
 import hashlib
 
 
-def HashearPassword(pwd):
+def hashear_password(pwd):
     return hashlib.sha256(str(pwd).encode('utf8')).hexdigest()
 
 
-def ValidarPassword(pwd, pwdHash):    
-    return HashearPassword(pwd) == pwdHash
+def validate_password(pwd, pwdHash):    
+    return hashear_password(pwd) == pwdHash
 
 
-def ValidarUsuario(usuario, pwd):
-    with open('app/files/usuarios.json', 'r') as archivo:
-        usuarios = json.load(archivo)
-        if usuario in usuarios:
-            return ValidarPassword(pwd, usuarios[usuario])
+def validate_user(user, pwd):
+    with open('app/files/usuarios.json', 'r') as file:
+        users = json.load(file)
+        if user in users:
+            return validate_password(pwd, users[user])
         else:
             return False
 
 
-def CargarPersonas():
-    with open('app/files/personas.json', 'r') as archivo:
-        personas = json.load(archivo)
-    return personas
+def upload_people():
+    with open('app/files/personas.json', 'r') as file:
+        people = json.load(file)
+    return people
 
 
-def SeleccionarPersona(id):
-    with open('app/files/personas.json', 'r') as archivo:
-        personas = json.load(archivo) 
-    for persona in personas:
-        if persona['id'] == id:
-            return persona
+def select_person(person_id):
+    with open('app/files/personas.json', 'r') as file:
+        people = json.load(file) 
+    for person in people:
+        if person['id'] == person_id:
+            return person
     return None
 
 
-def RegistrarPersona(datos):
-    with open('app/files/personas.json', 'r') as archivo:
-        personas = json.load(archivo)    
-    if not personas:
-        idNuevo = 1
+def register_person(data):
+    with open('app/files/personas.json', 'r') as file:
+        people = json.load(file)    
+    if not people:
+        new_id = 1
     else:
-        idNuevo = int(max(personas, key=lambda x:x['id'])['id']) + 1
-    datos['id'] = idNuevo
-    personas.append(datos)
-    with open('app/files/personas.json', 'w') as archivo:
-        json.dump(personas, archivo, indent=6)
+        new_id = int(max(people, key=lambda x:x['id'])['id']) + 1
+    data['id'] = new_id
+    people.append(data)
+    with open('app/files/personas.json', 'w') as file:
+        json.dump(people, file, indent=6)
 
 
-def EliminarPersona(id):
-    id = int(id)
-    with open('app/files/personas.json', 'r') as archivo:
-        personas = json.load(archivo)    
-    personas = [p for p in personas if p['id'] != id]
-    with open('app/files/personas.json', 'w') as archivo:
-        json.dump(personas, archivo, indent=6)
+def delet_person(person_id):
+    person_id= int(person_id)
+    with open('app/files/personas.json', 'r') as file:
+        people = json.load(file)    
+    people = [p for p in people if p['id'] != person_id]
+    with open('app/files/personas.json', 'w') as file:
+        json.dump(people, file, indent=6)

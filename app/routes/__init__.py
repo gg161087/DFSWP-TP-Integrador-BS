@@ -1,75 +1,83 @@
 from flask import render_template, redirect, url_for, session, flash, request
 from app.auth import login_required
 from app import app
-from app.forms import LoginForm, RegistrarPersonaForm, EditarPersonaForm
+from app.forms import *
 from app.handlers import *
-
+from datetime import datetime
 
 @app.route('/')
 @app.route('/index')
 @login_required
 def index():
-    if request.method == 'GET' and request.args.get('borrar'):
-        EliminarPersona(request.args.get('borrar'))
+    if request.method == 'GET' and request.args.get('eliminar'):
+        delet_person(request.args.get('eliminar'))
         flash('Se ha eliminado la persona', 'success')
-    return render_template('index.html', titulo="Inicio", personas=CargarPersonas())
+    return render_template('index.html', titulo="Inicio", personas=upload_people())
 
 
 @app.route('/registrar_persona', methods=['GET', 'POST'])
 @login_required
 def registrar_persona():
-    personaForm = RegistrarPersonaForm()
-    if personaForm.cancelar.data:
+    person_form = RegisterPersonForm()
+    if person_form.cancelar.data:
         return redirect(url_for('index'))
-    if personaForm.validate_on_submit():
-        fecha = str(personaForm.fecha.data)
+    if person_form.validate_on_submit():
+        fecha = str(person_form.fecha.data)
         datos = {
             'fecha': fecha,
-            'nombre': personaForm.nombre.data, 
-            'apellido': personaForm.apellido.data, 
-            'dni': personaForm.dni.data,
-            'motivo': personaForm.motivo.data
+            'nombre': person_form.nombre.data, 
+            'apellido': person_form.apellido.data, 
+            'dni': person_form.dni.data,
+            'motivo': person_form.motivo.data
         }        
-        RegistrarPersona(datos)
+        register_person(datos)
         flash('Se agregado una nueva persona', 'success')
         return redirect(url_for('index'))
-    return render_template('registrar_persona.html', titulo="Persona", personaForm=personaForm)
+    return render_template('registrar_persona.html', titulo="Persona", personaForm=person_form)
 
 
-@app.route('/editar_persona/<int:id>', methods=['GET', 'POST'])
+@app.route('/editar_persona/<int:id>', methods=['GET'])
 @login_required
-def editar_persona(id):
-    personaForm = EditarPersonaForm(data=SeleccionarPersona(id))
-    if personaForm.cancelar.data:
+def get_editar_persona(id):
+    person_form = EditPersonForm(data=select_person(id))
+    person_form.fecha.data = datetime.strptime(person_form.fecha.data, '%Y-%m-%d') 
+    return render_template('editar_persona.html', titulo="Persona", personaForm=person_form)
+
+
+@app.route('/editar_persona/<int:id>', methods=['POST'])
+@login_required
+def post_editar_persona(id):
+    person_form = EditPersonForm(data={})
+    if person_form.cancelar.data:
         return redirect(url_for('index'))
-    if personaForm.validate_on_submit():              
+    if person_form.validate_on_submit():     
+        fecha = str(person_form.fecha.data)           
         datos = {
-            'fecha': personaForm.fecha.data,
-            'nombre': personaForm.nombre.data, 
-            'apellido': personaForm.apellido.data, 
-            'dni': personaForm.dni.data,
-            'motivo': personaForm.motivo.data
+            'fecha': fecha,
+            'nombre': person_form.nombre.data, 
+            'apellido': person_form.apellido.data, 
+            'dni': person_form.dni.data,
+            'motivo': person_form.motivo.data
         }
-        EliminarPersona(id)
-        RegistrarPersona(datos)
+        delet_person(id)
+        register_person(datos)
         flash('Se ha editado a la persona exitosamente', 'success')
-        return redirect(url_for('index'))
-    return render_template('editar_persona.html', titulo="Persona", personaForm=personaForm)
+        return redirect(url_for('index'))   
 
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
-    loginForm = LoginForm()
-    if loginForm.validate_on_submit():
-        usuario = loginForm.usuario.data
-        pwd = loginForm.pwd.data
-        if ValidarUsuario(usuario, pwd):
+    login_form = LoginForm()
+    if login_form.validate_on_submit():
+        usuario = login_form.usuario.data
+        pwd = login_form.pwd.data
+        if validate_user(usuario, pwd):
             session['usuario'] = usuario
             flash('Inicio de sesión exitoso', 'success')
             return redirect(url_for('index'))
         else:
             flash('Credenciales inválidas', 'danger')
-    return render_template('login.html', titulo="Login", loginForm=loginForm)
+    return render_template('login.html', titulo="Login", loginForm=login_form)
 
 
 @app.route('/logout')
