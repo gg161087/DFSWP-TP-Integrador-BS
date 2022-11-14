@@ -6,13 +6,5 @@
             "dni": "33212188",
             "motivo": "particular",
             "id": 3
-      },
-      {
-            "fecha": "2022-11-03",
-            "nombre": "asd2",
-            "apellido": "asd2",
-            "dni": "asd2",
-            "motivo": "asd2",
-            "id": 4
       }
 ]
